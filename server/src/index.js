@@ -12,7 +12,13 @@ app.get("/api/health", (req, res) => {
   res.json({ success: true, status: "online" });
 });
 
+
+
 const PORT = process.env.PORT || 3002;
+
+app.get("/api/config", (req, res) => {
+  res.json({ success: true, data: { evento: process.env.EVENTO } });
+});
 app.listen(PORT, () => {
   console.log(`\n🍺 Birra20Venti Server`);
   console.log(`   API: http://localhost:${PORT}/api`);

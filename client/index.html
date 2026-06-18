@@ -202,6 +202,19 @@
   <script>
     const API_URL = "/api/registrazione";
 
+    let EVENTO_CORRENTE = "";
+
+async function caricaConfig() {
+  try {
+    const res = await fetch("/api/config");
+    const data = await res.json();
+    EVENTO_CORRENTE = data.data.evento;
+  } catch(e) {
+    console.error("Errore caricamento config:", e);
+  }
+}
+caricaConfig();
+
     async function invia() {
       const nome    = document.getElementById("nome").value.trim();
       const cognome = document.getElementById("cognome").value.trim();
@@ -225,7 +238,7 @@
         const res = await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nome, cognome, email, privacy, evento: "EVENTO_PLACEHOLDER" })
+          body: JSON.stringify({ nome, cognome, email, privacy, evento: EVENTO_CORRENTE })
         });
         const data = await res.json();
 
