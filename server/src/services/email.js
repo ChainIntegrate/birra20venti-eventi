@@ -20,11 +20,13 @@ async function inviaConfermaCliente(destinatario, nome) {
         <h2 style="color:#F5A623">🍺 Benvenuto da Birra20Venti!</h2>
         <p>Ciao <strong>${nome}</strong>,</p>
         <p>La tua registrazione è avvenuta con successo!</p>
-        <div style="background:#1a1a1a;border-radius:12px;padding:24px;margin:24px 0;color:#fff">
+        <img src="${process.env.IPFS_IMAGE_URI}" alt="Birra20Venti Welcome Token" style="width:100%;border-radius:12px;margin:16px 0" />
+        <div style="background:#1a1a1a;border-radius:12px;padding:24px;margin:16px 0;color:#fff">
           <p style="font-size:16px;margin-bottom:8px">🎁 Il tuo premio:</p>
           <p style="font-size:20px;font-weight:bold;color:#F5A623">1 birra omaggio ogni 5 acquisti</p>
         </div>
         <p>Per ricevere il tuo omaggio, ricorda di <strong>ordinare sempre con i dati con cui ti sei registrato</strong>.</p>
+        <p style="margin-top:16px">👉 <a href="https://www.birra20ventifidelity.it/shop.html" style="color:#F5A623;font-weight:bold">Vai allo shop</a></p>
         <p style="margin-top:24px;color:#8E8E9A;font-size:12px">Birra20Venti — Il tuo birrificio artigianale</p>
       </div>
     `,
