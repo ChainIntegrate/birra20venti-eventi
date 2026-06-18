@@ -13,10 +13,15 @@ module.exports = {
   },
 },
     networks: {
-    luksoTestnet: {
-      url: "https://rpc.testnet.lukso.network",
-      chainId: 4201,
-accounts: [process.env.ADMIN_PRIVATE_KEY.replace('0x', '')],
-    },
+  luksoTestnet: {
+    url: "https://rpc.testnet.lukso.network",
+    chainId: 4201,
+    accounts: [process.env.PRIVATE_KEY.replace('0x', '')],
   },
+  luksoMainnet: {
+    url: "https://rpc.mainnet.lukso.network",
+    chainId: 42,
+    accounts: [process.env.PRIVATE_KEY.replace('0x', '')],
+  },
+},
 };

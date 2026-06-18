@@ -1,0 +1,14 @@
+{
+  "network": "lukso-mainnet",
+  "chainId": 42,
+  "deployedAt": "2026-06-19",
+  "contracts": {
+    "Birra20VentiWelcome": {
+      "address": "0xd0f655A63032D0c9afAAf1FB558A326FE611D379",
+      "standard": "LSP8",
+      "license": "MIT"
+    }
+  },
+  "deployer": "0x84B883180265948505BFe49F0b78e1dAaECa0156",
+  "adminEOA": "0x30D5e2c9BEc1A75515b88d6c80528e9003AeA9EF"
+}
