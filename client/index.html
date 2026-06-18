@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birra20Venti — Registrazione</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 480px;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .logo h1 {
+      font-size: 28px;
+      color: #F5A623;
+      letter-spacing: -0.5px;
+    }
+    .logo p {
+      font-size: 14px;
+      color: #8E8E9A;
+      margin-top: 6px;
+    }
+    .card {
+      background: #2a2a2a;
+      border-radius: 16px;
+      padding: 28px;
+      border: 1px solid #3a3a3a;
+    }
+    .benefit {
+      background: #F5A62318;
+      border: 1px solid #F5A62340;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: #F5A623;
+      text-align: center;
+    }
+    .benefit strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+    .fg { margin-bottom: 16px; }
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #8E8E9A;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    input[type=text], input[type=email] {
+      width: 100%;
+      padding: 11px 14px;
+      background: #1a1a1a;
+      border: 1.5px solid #3a3a3a;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+    input:focus { border-color: #F5A623; }
+    .privacy {
+      background: #1a1a1a;
+      border: 1px solid #3a3a3a;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #8E8E9A;
+      line-height: 1.6;
+    }
+    .privacy-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .privacy-check input {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      cursor: pointer;
+      accent-color: #F5A623;
+    }
+    .privacy-check span {
+      font-size: 12px;
+      color: #ccc;
+    }
+    .privacy-check a {
+      color: #F5A623;
+    }
+    .btn {
+      width: 100%;
+      padding: 13px;
+      background: #F5A623;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn:hover { background: #e09515; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .alert {
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .alert-e { background: #FF475718; border: 1px solid #FF475740; color: #FF4757; }
+    .alert-s { background: #00C48C18; border: 1px solid #00C48C40; color: #00C48C; }
+    .success {
+      text-align: center;
+      padding: 20px 0;
+    }
+    .success .ico { font-size: 60px; margin-bottom: 16px; }
+    .success h2 { font-size: 22px; color: #F5A623; margin-bottom: 8px; }
+    .success p { font-size: 14px; color: #8E8E9A; line-height: 1.6; }
+    .evento-badge {
+      background: #F5A62318;
+      border: 1px solid #F5A62340;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      color: #F5A623;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <h1>🍺 Birra20Venti</h1>
+      <p>Programma Fedeltà</p>
+    </div>
+    <div class="card">
+      <div id="form-area">
+        <div class="benefit">
+          <strong>🎁 1 birra omaggio</strong>
+          ogni 5 acquisti
+        </div>
+        <div id="alert" style="display:none" class="alert"></div>
+        <div class="fg">
+          <label>Nome</label>
+          <input type="text" id="nome" placeholder="Mario" />
+        </div>
+        <div class="fg">
+          <label>Cognome</label>
+          <input type="text" id="cognome" placeholder="Rossi" />
+        </div>
+        <div class="fg">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="mario@email.it" />
+        </div>
+        <div class="privacy">
+          Autorizzo al trattamento dei miei dati personali per ricevere il buono sconto di Birra20Venti.
+          Birra20Venti tratta i dati personali come indicato nella
+          <a href="https://birra20venti.it/privacy" target="_blank" style="color:#F5A623">Privacy Policy</a>.
+          <div class="privacy-check">
+            <input type="checkbox" id="privacy" />
+            <span>Accetto il trattamento dei miei dati personali</span>
+          </div>
+        </div>
+        <button class="btn" id="btn-invia" onclick="invia()">Registrati e ricevi il buono 🍺</button>
+      </div>
+      <div id="success-area" style="display:none" class="success">
+        <div class="ico">🍺</div>
+        <h2>Benvenuto!</h2>
+        <p>La tua registrazione è avvenuta con successo.<br>
+        Controlla la tua email per la conferma.<br><br>
+        <strong>Ricorda di ordinare sempre con i dati con cui ti sei registrato!</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "/api/registrazione";
+
+    async function invia() {
+      const nome    = document.getElementById("nome").value.trim();
+      const cognome = document.getElementById("cognome").value.trim();
+      const email   = document.getElementById("email").value.trim();
+      const privacy = document.getElementById("privacy").checked;
+      const btn     = document.getElementById("btn-invia");
+      const alert   = document.getElementById("alert");
+
+      // Reset alert
+      alert.style.display = "none";
+
+      // Validazione client
+      if (!nome || !cognome) return showAlert("Inserisci nome e cognome", "e");
+      if (!email || !email.includes("@")) return showAlert("Inserisci un'email valida", "e");
+      if (!privacy) return showAlert("Devi accettare la privacy per procedere", "e");
+
+      btn.disabled = true;
+      btn.textContent = "Registrazione in corso…";
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nome, cognome, email, privacy, evento: "EVENTO_PLACEHOLDER" })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          document.getElementById("form-area").style.display = "none";
+          document.getElementById("success-area").style.display = "block";
+        } else {
+          showAlert(data.error || "Errore durante la registrazione", "e");
+          btn.disabled = false;
+          btn.textContent = "Registrati e ricevi il buono 🍺";
+        }
+      } catch(e) {
+        showAlert("Errore di connessione", "e");
+        btn.disabled = false;
+        btn.textContent = "Registrati e ricevi il buono 🍺";
+      }
+    }
+
+    function showAlert(msg, type) {
+      const el = document.getElementById("alert");
+      el.className = `alert alert-${type}`;
+      el.textContent = msg;
+      el.style.display = "block";
+    }
+  </script>
+</body>
+</html>
