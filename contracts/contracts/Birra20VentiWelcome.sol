@@ -8,22 +8,23 @@ import { _LSP8_TOKENID_FORMAT_NUMBER } from "@lukso/lsp8-contracts/contracts/LSP
 /**
  * @title Birra20VentiWelcome
  * @dev Token LSP8 benvenuto per i clienti di Birra20Venti
+ * - Owner del contratto = UP ChainIntegrate (creator visibile, permanente)
+ * - Operazioni di mint = ruolo separato "admin" (EOA operativo)
  * - Un contratto unico riusabile per tutti gli eventi
- * - Immagine e nome evento passati al mint di ogni token
- * - Un solo token per cliente per evento
- * - Non rideplorare per ogni evento
  */
 contract Birra20VentiWelcome is LSP8IdentifiableDigitalAsset {
 
     error NotAuthorized(address caller);
     error ClienteHaGiaTokenPerEvento(address cliente, string evento);
 
-    // cliente => evento => tokenId
+    address public admin;
+
     mapping(address => mapping(string => bytes32)) public tokenDelClientePerEvento;
     mapping(address => mapping(string => bool))    public haRicevutoPerEvento;
 
     uint256 private _tokenCounter;
 
+    event AdminSet(address indexed nuovoAdmin);
     event TokenBenvenutoMintato(
         address indexed cliente,
         bytes32 tokenId,
@@ -34,18 +35,28 @@ contract Birra20VentiWelcome is LSP8IdentifiableDigitalAsset {
     constructor(
         string memory name,
         string memory symbol,
-        address owner
+        address chainIntegrateOwner_,
+        address admin_
     ) LSP8IdentifiableDigitalAsset(
         name,
         symbol,
-        owner,
+        chainIntegrateOwner_,
         _LSP4_TOKEN_TYPE_NFT,
         _LSP8_TOKENID_FORMAT_NUMBER
-    ) {}
+    ) {
+        admin = admin_;
+        emit AdminSet(admin_);
+    }
 
-    modifier soloAdmin() {
-        if (msg.sender != owner()) revert NotAuthorized(msg.sender);
+    modifier onlyAdmin() {
+        if (msg.sender != admin) revert NotAuthorized(msg.sender);
         _;
+    }
+
+    function setAdmin(address nuovoAdmin) external {
+        if (msg.sender != owner()) revert NotAuthorized(msg.sender);
+        admin = nuovoAdmin;
+        emit AdminSet(nuovoAdmin);
     }
 
     function mintBenvenuto(
@@ -54,7 +65,7 @@ contract Birra20VentiWelcome is LSP8IdentifiableDigitalAsset {
         string calldata ipfsImageURI,
         uint256 imageWidth,
         uint256 imageHeight
-    ) external soloAdmin {
+    ) external onlyAdmin {
         if (haRicevutoPerEvento[cliente][evento])
             revert ClienteHaGiaTokenPerEvento(cliente, evento);
 
@@ -66,7 +77,6 @@ contract Birra20VentiWelcome is LSP8IdentifiableDigitalAsset {
 
         _mint(cliente, tokenId, true, "");
 
-        // Metadati LSP4 specifici per questo token
         string memory meta = string(abi.encodePacked(
             '{"LSP4Metadata":{"name":"Birra20Venti Welcome","description":"1 birra omaggio ogni 5 acquisti. Ordina con i dati con cui ti sei registrato."',
             ',"images":[[{"width":', _uint2str(imageWidth),
@@ -86,7 +96,6 @@ contract Birra20VentiWelcome is LSP8IdentifiableDigitalAsset {
         emit TokenBenvenutoMintato(cliente, tokenId, evento, block.timestamp);
     }
 
-    // Utility: uint256 → string
     function _uint2str(uint256 v) internal pure returns (string memory) {
         if (v == 0) return "0";
         uint256 j = v;

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birra20Venti — Verifica Token</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #1a1a1a;
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container { width: 100%; max-width: 480px; margin: 0 auto; }
+  h1 { color: #F5A623; font-size: 24px; margin-bottom: 4px; text-align: center; }
+  .sub { color: #8E8E9A; font-size: 13px; text-align: center; margin-bottom: 24px; }
+  .card {
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #8E8E9A;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  input {
+    width: 100%;
+    padding: 11px 14px;
+    background: #1a1a1a;
+    border: 1.5px solid #3a3a3a;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #fff;
+    outline: none;
+    font-family: monospace;
+    margin-bottom: 14px;
+  }
+  input:focus { border-color: #F5A623; }
+  button {
+    width: 100%;
+    padding: 13px;
+    background: #F5A623;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #3a3a3a;
+    font-size: 13px;
+    gap: 12px;
+  }
+  .row:last-child { border-bottom: none; }
+  .k { color: #8E8E9A; flex-shrink: 0; }
+  .v { font-weight: 600; text-align: right; word-break: break-word; }
+  .v.mono { font-family: monospace; font-size: 11px; }
+  .img-box {
+    margin-top: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1a1a1a;
+  }
+  .img-box img { width: 100%; display: block; }
+  .alert {
+    background: #FF475718;
+    border: 1px solid #FF475740;
+    color: #FF4757;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    margin-top: 16px;
+    display: none;
+  }
+  .alert.show { display: block; }
+  .loading { text-align: center; color: #8E8E9A; font-size: 13px; margin-top: 16px; display: none; }
+  .loading.show { display: block; }
+  .net-select {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .net-btn {
+    flex: 1;
+    padding: 9px;
+    background: #1a1a1a;
+    border: 1.5px solid #3a3a3a;
+    border-radius: 8px;
+    color: #8E8E9A;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .net-btn.active {
+    border-color: #F5A623;
+    color: #F5A623;
+    background: #F5A62318;
+  }
+  .token-count {
+    text-align: center;
+    color: #8E8E9A;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .empty {
+    text-align: center;
+    color: #8E8E9A;
+    font-size: 13px;
+    padding: 20px 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🍺 I miei Token</h1>
+  <p class="sub">Inserisci il tuo indirizzo per vedere tutti i token ricevuti</p>
+
+  <div class="card">
+    <div class="net-select">
+      <div class="net-btn active" id="net-mainnet" onclick="selectNet('mainnet')">Mainnet</div>
+      <div class="net-btn" id="net-testnet" onclick="selectNet('testnet')">Testnet</div>
+    </div>
+
+    <label>Indirizzo Wallet</label>
+    <input type="text" id="address" placeholder="0x..." />
+
+    <button id="btn" onclick="verifica()">Mostra i miei Token</button>
+
+    <div class="loading" id="loading">Caricamento dati on-chain…</div>
+    <div class="alert" id="alert"></div>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<script>
+  const NETWORKS = {
+    mainnet: {
+      rpc: "https://rpc.mainnet.lukso.network",
+      contracts: [
+        "0x063E54492946F04568AE0e6D1c3522beD91ef2dD",
+        "0xd0f655A63032D0c9afAAf1FB558A326FE611D379"
+      ]
+    },
+    testnet: {
+      rpc: "https://rpc.testnet.lukso.network",
+      contracts: ["0x12a4AFEC7B552081517D0a6C668D16FF536A04e7"]
+    }
+  };
+
+  let currentNet = "mainnet";
+
+  function selectNet(net) {
+    currentNet = net;
+    document.getElementById("net-mainnet").classList.toggle("active", net === "mainnet");
+    document.getElementById("net-testnet").classList.toggle("active", net === "testnet");
+  }
+
+  const ABI = [
+    "function tokenIdsOf(address tokenOwner) external view returns (bytes32[])",
+    "function getData(bytes32 dataKey) external view returns (bytes memory)",
+    "function getDataForTokenId(bytes32 tokenId, bytes32 dataKey) external view returns (bytes memory)"
+  ];
+
+  // Precompila l'indirizzo se passato come ?address=0x... nell'URL
+  window.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const addr = params.get("address");
+    if (addr) {
+      document.getElementById("address").value = addr;
+      verifica();
+    }
+  });
+
+  async function leggiMetadati(contract, tokenId) {
+    const metaKey = ethers.keccak256(
+      ethers.concat([ethers.toUtf8Bytes("LSP8MetadataJSON:"), tokenId])
+    );
+    // Prova prima con getDataForTokenId (standard, contratto nuovo)
+    try {
+      const data = await contract.getDataForTokenId(tokenId, metaKey);
+      if (data && data !== "0x") return data;
+    } catch(e) {}
+    // Fallback su getData (contratto vecchio)
+    try {
+      const data = await contract.getData(metaKey);
+      if (data && data !== "0x") return data;
+    } catch(e) {}
+    return null;
+  }
+
+  async function verifica() {
+    const address = document.getElementById("address").value.trim();
+    const btn      = document.getElementById("btn");
+    const alertBox = document.getElementById("alert");
+    const loading  = document.getElementById("loading");
+    const results  = document.getElementById("results");
+
+    alertBox.classList.remove("show");
+    results.innerHTML = "";
+
+    if (!address || !ethers.isAddress(address)) {
+      return showAlert("Indirizzo non valido");
+    }
+
+    btn.disabled = true;
+    loading.classList.add("show");
+
+    try {
+      const net = NETWORKS[currentNet];
+      const provider = new ethers.JsonRpcProvider(net.rpc);
+
+      let allTokens = [];
+
+      for (const contractAddr of net.contracts) {
+        const contract = new ethers.Contract(contractAddr, ABI, provider);
+        try {
+          const tokenIds = await contract.tokenIdsOf(address);
+          for (const tokenId of tokenIds) {
+            allTokens.push({ contract, contractAddr, tokenId });
+          }
+        } catch(e) {
+          console.warn("Errore su contratto", contractAddr, e.message);
+        }
+      }
+
+      loading.classList.remove("show");
+      btn.disabled = false;
+
+      if (allTokens.length === 0) {
+        results.innerHTML = '<div class="card"><div class="empty">Nessun token trovato per questo indirizzo</div></div>';
+        return;
+      }
+
+      results.innerHTML = `<div class="token-count">${allTokens.length} token trovat${allTokens.length === 1 ? "o" : "i"}</div>`;
+
+      for (const { contract, tokenId } of allTokens) {
+        let html = `<div class="card">`;
+        html += `<div class="row"><span class="k">Token ID</span><span class="v mono">${tokenId}</span></div>`;
+
+        try {
+          const data = await leggiMetadati(contract, tokenId);
+
+          if (!data) {
+            html += `<div class="row"><span class="k">Stato</span><span class="v">Nessun metadato</span></div>`;
+          } else {
+            const jsonStr = ethers.toUtf8String(data);
+            const parsed = JSON.parse(jsonStr);
+            const meta = parsed.LSP4Metadata;
+
+            const attrs = {};
+            (meta.attributes || []).forEach(a => attrs[a.key] = a.value);
+
+            html += `<div class="row"><span class="k">Nome</span><span class="v">${meta.name || "—"}</span></div>`;
+            html += `<div class="row"><span class="k">Descrizione</span><span class="v">${meta.description || "—"}</span></div>`;
+            html += `<div class="row"><span class="k">Brand</span><span class="v">${attrs.brand || "—"}</span></div>`;
+            html += `<div class="row"><span class="k">Benefit</span><span class="v">${attrs.benefit || "—"}</span></div>`;
+            html += `<div class="row"><span class="k">Evento</span><span class="v">${attrs.evento || "—"}</span></div>`;
+
+            if (meta.images && meta.images[0] && meta.images[0][0] && meta.images[0][0].url) {
+              html += `<div class="img-box"><img src="${meta.images[0][0].url}" alt="Token" /></div>`;
+            }
+          }
+        } catch (e) {
+          html += `<div class="row"><span class="k">Errore</span><span class="v">${e.message}</span></div>`;
+        }
+
+        html += `</div>`;
+        results.innerHTML += html;
+      }
+
+    } catch (e) {
+      loading.classList.remove("show");
+      btn.disabled = false;
+      console.error(e);
+      showAlert("Errore: " + e.message);
+    }
+  }
+
+  function showAlert(msg) {
+    const el = document.getElementById("alert");
+    el.textContent = msg;
+    el.classList.add("show");
+  }
+</script>
+</body>
+</html>

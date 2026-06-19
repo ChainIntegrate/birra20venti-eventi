@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/workspaces/birra20venit-eventi/contracts/contracts/Birra20VentiWelcome.sol": {
-      "lastModificationDate": 1781813209459,
-      "contentHash": "358cef8b610341086e5bb9b1dc860f06",
+      "lastModificationDate": 1781822790787,
+      "contentHash": "b7dd6cce2973ca139847d16157ec91e2",
       "sourceName": "contracts/Birra20VentiWelcome.sol",
       "solcConfig": {
         "version": "0.8.28",
