@@ -72,7 +72,7 @@ router.post("/", async (req, res) => {
     saveDB(db);
 
     // Invia email al cliente
-    await inviaConfermaCliente(email, nome);
+   await inviaConfermaCliente(email, nome, address);
 
     // Invia notifica al birrificio
     await inviaNotificaBirrificio({ nome, cognome, email, evento, address });

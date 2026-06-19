@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function inviaConfermaCliente(destinatario, nome) {
+async function inviaConfermaCliente(destinatario, nome, address) {
   await transporter.sendMail({
     from: `"Birra20Venti" <${process.env.SMTP_FROM}>`,
     to: destinatario,
@@ -27,6 +27,7 @@ async function inviaConfermaCliente(destinatario, nome) {
         </div>
         <p>Per ricevere il tuo omaggio, ricorda di <strong>ordinare sempre con i dati con cui ti sei registrato</strong>.</p>
         <p style="margin-top:16px">👉 <a href="https://www.birra20ventifidelity.it/shop.html" style="color:#F5A623;font-weight:bold">Vai allo shop</a></p>
+<p style="margin-top:12px">🎟️ <a href="https://registrazione-eventi.birra20ventifidelity.it/verifica.html?address=${address}" style="color:#F5A623;font-weight:bold">Verifica il tuo token</a></p>
         <p style="margin-top:24px;color:#8E8E9A;font-size:12px">Birra20Venti — Il tuo birrificio artigianale</p>
       </div>
     `,
