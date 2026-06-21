@@ -37,16 +37,27 @@ router.post("/", async (req, res) => {
 
     const db = loadDB();
 
-    // Controlla duplicati per evento
-    const esistente = db.find(u => u.email.toLowerCase() === email.toLowerCase() && u.evento === evento);
-    if (esistente)
-      return res.status(400).json({ success: false, error: "Hai già partecipato a questo evento" });
+// Controlla duplicati per lo stesso evento (stessa email)
+const esistentePerEvento = db.find(u => u.email.toLowerCase() === email.toLowerCase() && u.evento === evento);
+if (esistentePerEvento)
+  return res.status(400).json({ success: false, error: "Hai già partecipato a questo evento" });
 
-    // Genera EOA
-    const wallet = ethers.Wallet.createRandom();
-    const address = wallet.address;
-    const encryptedPk = cifra(wallet.privateKey);
+// Controlla se l'email esiste già da un evento precedente
+const clienteEsistente = db.find(u => u.email.toLowerCase() === email.toLowerCase());
 
+let address, encryptedPk;
+
+if (clienteEsistente) {
+  // Riusa il wallet esistente per questo cliente
+  address = clienteEsistente.address;
+  encryptedPk = clienteEsistente.encryptedPk;
+  console.log(`♻️  Cliente esistente riconosciuto: ${email} - riuso wallet ${address}`);
+} else {
+  // Nuovo cliente: genera un nuovo EOA
+  const wallet = ethers.Wallet.createRandom();
+  address = wallet.address;
+  encryptedPk = cifra(wallet.privateKey);
+}
     // Mint token su LUKSO
     const { txHash } = await mintToken(
       address,
@@ -57,19 +68,20 @@ router.post("/", async (req, res) => {
     );
 
     // Salva nel DB
-    const cliente = {
-      id: uuidv4(),
-      nome: nome.trim(),
-      cognome: cognome.trim(),
-      email: email.toLowerCase().trim(),
-      evento,
-      address,
-      encryptedPk,
-      txHash,
-      createdAt: Date.now(),
-    };
-    db.push(cliente);
-    saveDB(db);
+    // Salva nel DB - sempre una nuova riga per evento, ma con lo stesso address/encryptedPk se cliente esistente
+const cliente = {
+  id: uuidv4(),
+  nome: nome.trim(),
+  cognome: cognome.trim(),
+  email: email.toLowerCase().trim(),
+  evento,
+  address,
+  encryptedPk,
+  txHash,
+  createdAt: Date.now(),
+};
+db.push(cliente);
+saveDB(db);
 
     // Invia email al cliente
    await inviaConfermaCliente(email, nome, address);
