@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3002;
 app.get("/api/config", (req, res) => {
   res.json({ success: true, data: { evento: process.env.EVENTO } });
 });
-app.listen(PORT, () => {
+app.listen(PORT, '127.0.0.1', () => {
   console.log(`\n🍺 Birra20Venti Server`);
   console.log(`   API: http://localhost:${PORT}/api`);
 });
